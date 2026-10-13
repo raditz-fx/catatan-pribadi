@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2563EB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Catatan">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Catatan Pribadi</title>
+<style>
+:root{
+  --ac:#2563EB;--ac-d:#1D4ED8;--ac-w:rgba(37,99,235,.12);
+  --bg:#FAFAF9;--surf:#FFFFFF;--surf2:#F5F5F4;--line:#E7E5E4;--ink:#1C1917;--mute:#78716C;
+  --good:#15803D;--good-w:rgba(21,128,61,.10);--bad:#B91C1C;--bad-w:rgba(185,28,28,.09);
+  --warn:#B45309;--warn-w:rgba(217,119,6,.12);--r:14px;--shadow:0 6px 24px rgba(28,25,23,.08);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0F0D0C;--surf:#1C1917;--surf2:#262220;--line:#38332F;--ink:#F5F5F4;--mute:#A8A29E;
+  --ac-d:#60A5FA;--ac-w:rgba(96,165,250,.16);
+  --good:#4ADE80;--good-w:rgba(74,222,128,.12);--bad:#F87171;--bad-w:rgba(248,113,113,.12);
+  --warn:#FBBF24;--warn-w:rgba(251,191,36,.12);--shadow:0 6px 24px rgba(0,0,0,.45);
+}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink)}
+body{font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.app{max-width:560px;margin:0 auto;padding:0 16px calc(110px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:20;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top)) 0 10px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.02em}
+.brand i{width:28px;height:28px;border-radius:8px;background:var(--ac);color:#fff;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:800}
+.icb{width:40px;height:40px;border-radius:11px;border:1px solid var(--line);background:var(--surf);display:grid;place-items:center;cursor:pointer;font-size:17px}
+h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:20px 2px 9px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+h2 small{text-transform:none;letter-spacing:0;font-weight:600}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:var(--r);padding:15px;margin-bottom:12px}
+.hero{background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border:0}
+.hero .lbl{opacity:.85;font-size:12.5px}
+.hero .big{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:2px 0 8px}
+.hero .row{display:flex;gap:10px}
+.hero .row div{flex:1;background:rgba(255,255,255,.16);border-radius:10px;padding:8px 10px}
+.hero .row b{display:block;font-size:15.5px}
+.hero .row span{font-size:11.5px;opacity:.9}
+.bar{height:9px;border-radius:99px;background:var(--surf2);overflow:hidden;margin:8px 0 6px}
+.bar i{display:block;height:100%;background:var(--good);border-radius:99px}
+.bar.warn i{background:var(--warn)} .bar.bad i{background:var(--bad)}
+.t1{font-weight:650;font-size:14.5px;word-break:break-word}
+.t2{font-size:12.5px;color:var(--mute);word-break:break-word}
+.list .it{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.list .it:last-child{border-bottom:0}
+.av{width:36px;height:36px;border-radius:10px;background:var(--good-w);color:var(--good);display:grid;place-items:center;font-weight:800;flex:0 0 auto;font-size:16px}
+.av.out{background:var(--bad-w);color:var(--bad)}
+.grow{flex:1;min-width:0}
+.amt{font-weight:750;text-align:right;white-space:nowrap}
+.in{color:var(--good)} .outc{color:var(--bad)}
+.tag{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;background:var(--surf2);color:var(--mute);margin:2px 4px 0 0}
+.tag.ac{background:var(--ac-w);color:var(--ac-d)} .tag.warn{background:var(--warn-w);color:var(--warn)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surf);font-weight:700;cursor:pointer;text-align:center}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad)}
+.btn+.btn{margin-top:9px}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.quick .btn{margin:0;padding:12px 8px;font-size:14px}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:30;width:min(528px,calc(100% - 32px));padding:15px;border-radius:16px;border:0;background:var(--ac);color:#fff;font-weight:800;font-size:16px;box-shadow:var(--shadow);cursor:pointer}
+.empty{color:var(--mute);text-align:center;padding:18px 6px;font-size:14px}
+/* sheet */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;display:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:560px;margin:0 auto;background:var(--bg);border-radius:18px 18px 0 0;max-height:92vh;overflow:auto;padding:14px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .22s ease,visibility .22s;visibility:hidden}
+.sheet.on{transform:none;visibility:visible}
+.ov.on{display:block}
+.sh-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sh-h b{font-size:17px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surf2);border-radius:12px;padding:4px;gap:4px;margin-bottom:12px}
+.seg button{border:0;background:transparent;padding:10px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--mute)}
+.seg button.on.m{background:var(--surf);color:var(--good);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.seg button.on.k{background:var(--surf);color:var(--bad);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+label.l{display:block;font-size:12.5px;font-weight:700;color:var(--mute);margin:12px 2px 6px}
+.inp{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--line);background:var(--surf);font-size:16px}
+textarea.inp{min-height:70px;resize:vertical}
+.amtin{font-size:26px;font-weight:800;letter-spacing:-.01em}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chips button{border:1px solid var(--line);background:var(--surf);border-radius:999px;padding:8px 12px;font-size:13.5px;font-weight:600;cursor:pointer;text-align:left}
+.chips button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.req{color:var(--bad)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:12.5px;color:var(--mute);margin-top:8px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90%;text-align:center}
+.toast.on{opacity:1}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><i>Rp</i>Catatan Pribadi</div>
+    <button class="icb" id="bSet" aria-label="Pengaturan">⚙︎</button>
+  </header>
+
+  <div id="setup" class="card hide">
+    <div class="t1">Mulai dulu</div>
+    <div class="t2" style="margin:4px 0 10px">Isi saldo uang harian (BCA + cash dompet) dan tanggalnya. Samakan dengan saldo terakhir di Excel.</div>
+    <label class="l">Saldo awal (Rp)</label>
+    <input class="inp num" id="suAmt" inputmode="numeric" placeholder="contoh 130.000">
+    <label class="l">Per tanggal</label>
+    <input class="inp" id="suDate" type="date">
+    <div style="margin-top:12px"><button class="btn pri" id="suGo">Simpan</button></div>
+  </div>
+
+  <div id="main">
+    <div class="card hero">
+      <div class="lbl">Saldo uang harian (BCA + cash)</div>
+      <div class="big num" id="saldo">Rp0</div>
+      <div class="row">
+        <div><b class="num" id="mIn">Rp0</b><span>Masuk bulan ini</span></div>
+        <div><b class="num" id="mOut">Rp0</b><span>Keluar bulan ini</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="t1">Biaya hidup bulan ini</div><div class="t2 num" id="bhTxt"></div>
+      <div class="bar" id="bhBar"><i style="width:0"></i></div>
+      <div class="t2" id="bhNote"></div>
+    </div>
+
+    <div class="quick">
+      <button class="btn" id="qMakan">🍱 Sisa jatah makan</button>
+      <button class="btn" id="qExp">📋 Salin untuk Excel <span id="pend" class="tag ac">0</span></button>
+    </div>
+
+    <h2>Transaksi <small id="monthLbl"></small></h2>
+    <div class="card list" id="list"></div>
+    <button class="btn ghost" id="bOlder">Tampilkan bulan sebelumnya</button>
+  </div>
+</div>
+
+<button class="fab" id="fab">＋ Catat transaksi</button>
+
+<div class="ov" id="ov"></div>
+
+<!-- Form transaksi -->
+<div class="sheet" id="shForm" role="dialog" aria-label="Form transaksi">
+  <div class="sh-h"><b id="fTitle">Catat transaksi</b><button class="icb" data-close>✕</button></div>
+  <div class="seg"><button class="m" data-j="Masuk">Masuk</button><button class="k" data-j="Keluar">Keluar</button></div>
+  <label class="l">Nominal (Rp)</label>
+  <input class="inp num amtin" id="fAmt" inputmode="numeric" placeholder="0" autocomplete="off">
+  <label class="l">Kategori</label>
+  <div class="chips" id="fKat"></div>
+  <div id="wUntuk" class="hide">
+    <label class="l">Untuk <span id="untukReq" class="req">*wajib</span></label>
+    <select class="inp" id="fUntuk"></select>
+  </div>
+  <label class="l">Metode</label>
+  <div class="chips" id="fMet"></div>
+  <label class="l">Keterangan</label>
+  <input class="inp" id="fKet" placeholder="mis. Makan siang" autocomplete="off">
+  <div class="row2">
+    <div><label class="l">Tanggal</label><input class="inp" id="fTgl" type="date"></div>
+    <div><label class="l">Catatan (opsional)</label><input class="inp" id="fCat" autocomplete="off"></div>
+  </div>
+  <div style="margin-top:16px"><button class="btn pri" id="fSave">Simpan</button><button class="btn danger hide" id="fDel">Hapus transaksi</button></div>
+</div>
+
+<!-- Ekspor -->
+<div class="sheet" id="shExp" role="dialog" aria-label="Ekspor">
+  <div class="sh-h"><b>Pindahkan ke Excel</b><button class="icb" data-close>✕</button></div>
+  <div class="card">
+    <div class="t1" id="expInfo"></div>
+    <div class="note">Cara: buka Excel → sheet <b>Transaksi</b> → klik sel <b>B</b> di baris kosong pertama → Tempel (⌘V).</div>
+  </div>
+  <button class="btn pri" id="eCopy">Salin transaksi baru</button>
+  <button class="btn" id="eDone">Sudah kutempel → tandai terekspor</button>
+  <button class="btn" id="eCsv">Unduh CSV (transaksi baru)</button>
+  <button class="btn ghost" id="eAll">Salin SEMUA transaksi</button>
+</div>
+
+<!-- Pengaturan -->
+<div class="sheet" id="shSet" role="dialog" aria-label="Pengaturan">
+  <div class="sh-h"><b>Pengaturan</b><button class="icb" data-close>✕</button></div>
+  <label class="l">Saldo awal (Rp)</label>
+  <input class="inp num" id="sAmt" inputmode="numeric">
+  <label class="l">Per tanggal</label>
+  <input class="inp" id="sDate" type="date">
+  <label class="l">Batas biaya hidup per bulan (Rp)</label>
+  <input class="inp num" id="sLimit" inputmode="numeric">
+  <label class="l">Nominal jatah makan (Rp)</label>
+  <input class="inp num" id="sMakan" inputmode="numeric">
+  <label class="l">Daftar "Untuk" (satu nama per baris — harus sama persis dengan Excel)</label>
+  <textarea class="inp" id="sUntuk" style="min-height:150px"></textarea>
+  <div class="note">Daftar ini hanya tersimpan di HP ini, tidak ikut ke GitHub.</div>
+  <div style="margin-top:14px"><button class="btn pri" id="sSave">Simpan pengaturan</button></div>
+  <h2>Cadangan data</h2>
+  <button class="btn" id="bBackup">Unduh cadangan (JSON)</button>
+  <button class="btn" id="bRestore">Pulihkan dari cadangan</button>
+  <input type="file" id="fileRestore" accept="application/json,.json" class="hide">
+  <div class="note" id="lastBackup"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const KEY="radit_pribadi_v1";
+const KAT={
+  Masuk:["Bagi hasil FNC","Modal Dad (hibah)","Piutang pribadi diterima","Ambil dari target","Penjualan barang","Pemasukan lain"],
+  Keluar:["Biaya hidup","Bayar hutang","Kuliah","Setor ke target","Gadget & kerja","Keluarga","Pengeluaran lain"]
+};
+const WAJIB_UNTUK=["Bayar hutang","Piutang pribadi diterima","Setor ke target","Ambil dari target"];
+const METODE=["Transfer bank","QRIS","E-wallet","Cash","Lainnya"];
+const $=id=>document.getElementById(id);
+const fmt=n=>"Rp"+Math.round(n||0).toLocaleString("id-ID");
+const parseAmt=s=>parseInt(String(s||"").replace(/[^\d]/g,""),10)||0;
+const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const ym=s=>s.slice(0,7);
+const BULAN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const tglID=s=>{const[y,m,d]=s.split("-");return `${+d} ${BULAN[+m-1].slice(0,3)} ${y}`};
+const tglXL=s=>{const[y,m,d]=s.split("-");return `${d}/${m}/${y}`};
+
+let S=load();
+function load(){
+  let raw=null;try{raw=localStorage.getItem(KEY)}catch(e){}
+  let d=null;try{d=raw?JSON.parse(raw):null}catch(e){}
+  return Object.assign({v:1,setup:false,saldoAwal:0,tglAwal:today(),limitHidup:1000000,jatahMakan:50000,untuk:[],tx:[],lastMetode:"QRIS",lastBackup:null},d||{});
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast("Gagal menyimpan di HP ini")}}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2200)}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+/* ---------- render ---------- */
+let showMonths=1;
+function render(){
+  $("setup").classList.toggle("hide",S.setup);
+  $("main").classList.toggle("hide",!S.setup);
+  $("fab").classList.toggle("hide",!S.setup);
+  if(!S.setup){$("suDate").value=S.tglAwal||today();return}
+  const tx=[...S.tx].sort((a,b)=>b.tgl.localeCompare(a.tgl)||b.ts-a.ts);
+  const saldo=S.saldoAwal+tx.reduce((s,t)=>s+(t.jenis==="Masuk"?t.nom:-t.nom),0);
+  const cur=ym(today());
+  const bln=tx.filter(t=>ym(t.tgl)===cur);
+  const mIn=bln.filter(t=>t.jenis==="Masuk").reduce((s,t)=>s+t.nom,0);
+  const mOut=bln.filter(t=>t.jenis==="Keluar").reduce((s,t)=>s+t.nom,0);
+  $("saldo").textContent=fmt(saldo);
+  $("saldo").style.color=saldo<0?"#FECACA":"";
+  $("mIn").textContent=fmt(mIn);$("mOut").textContent=fmt(mOut);
+  const bh=bln.filter(t=>t.kat==="Biaya hidup").reduce((s,t)=>s+t.nom,0);
+  const lim=S.limitHidup||1;const pct=bh/lim;
+  $("bhTxt").textContent=`${fmt(bh)} / ${fmt(lim)}`;
+  const bar=$("bhBar");bar.className="bar"+(pct>1?" bad":pct>=.8?" warn":"");
+  bar.firstElementChild.style.width=Math.min(100,pct*100)+"%";
+  $("bhNote").textContent=pct>1?`Lewat batas ${fmt(bh-lim)}. Tahan pengeluaran sampai akhir bulan.`:pct>=.8?`Sudah ${Math.round(pct*100)}% — sisa ${fmt(lim-bh)} sampai akhir bulan.`:`Sisa ${fmt(lim-bh)} untuk bulan ini.`;
+  const pend=S.tx.filter(t=>!t.exp).length;
+  $("pend").textContent=pend;$("pend").className="tag "+(pend?"warn":"ac");
+  // list
+  const months=[...new Set(tx.map(t=>ym(t.tgl)))];
+  const shown=months.slice(0,showMonths);
+  const [y,m]=cur.split("-");$("monthLbl").textContent=showMonths>1?"":`${BULAN[+m-1]} ${y}`;
+  const items=tx.filter(t=>shown.includes(ym(t.tgl)));
+  $("list").innerHTML=items.length?items.map(t=>`
+    <div class="it" data-id="${t.id}">
+      <div class="av ${t.jenis==="Keluar"?"out":""}">${t.jenis==="Masuk"?"↓":"↑"}</div>
+      <div class="grow">
+        <div class="t1">${esc(t.ket||t.kat)}</div>
+        <div class="t2">${tglID(t.tgl)} · ${esc(t.kat)}${t.untuk?" · "+esc(t.untuk):""} · ${esc(t.met)}</div>
+        ${t.cat?`<div class="t2">${esc(t.cat)}</div>`:""}
+        ${t.exp?"":'<span class="tag warn">belum ke Excel</span>'}
+      </div>
+      <div class="amt num ${t.jenis==="Masuk"?"in":"outc"}">${t.jenis==="Masuk"?"+":"−"}${fmt(t.nom)}</div>
+    </div>`).join(""):`<div class="empty">Belum ada transaksi. Tekan “Catat transaksi”.</div>`;
+  $("bOlder").classList.toggle("hide",months.length<=showMonths);
+}
+function esc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+/* ---------- sheets ---------- */
+function open(id){$("ov").classList.add("on");$(id).classList.add("on")}
+function closeAll(){$("ov").classList.remove("on");document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("on"))}
+$("ov").onclick=closeAll;
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeAll);
+
+/* ---------- form ---------- */
+let F={};
+function chips(el,arr,val,cb){
+  el.innerHTML=arr.map(v=>`<button type="button" class="${v===val?"on":""}">${esc(v)}</button>`).join("");
+  [...el.children].forEach((b,i)=>b.onclick=()=>cb(arr[i]));
+}
+function drawForm(){
+  document.querySelectorAll(".seg button").forEach(b=>b.classList.toggle("on",b.dataset.j===F.jenis));
+  chips($("fKat"),KAT[F.jenis],F.kat,v=>{F.kat=v;drawForm()});
+  chips($("fMet"),METODE,F.met,v=>{F.met=v;drawForm()});
+  const need=WAJIB_UNTUK.includes(F.kat);
+  const show=need||!!F.untuk||(S.untuk.length&&F.kat&&!["Biaya hidup","Pemasukan lain"].includes(F.kat));
+  $("wUntuk").classList.toggle("hide",!show);
+  $("untukReq").classList.toggle("hide",!need);
+  $("fUntuk").innerHTML=`<option value="">— pilih —</option>`+S.untuk.map(u=>`<option ${u===F.untuk?"selected":""}>${esc(u)}</option>`).join("");
+}
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{if(F.jenis!==b.dataset.j){F.jenis=b.dataset.j;F.kat="";F.untuk=""}drawForm()});
+$("fUntuk").onchange=e=>F.untuk=e.target.value;
+$("fAmt").oninput=e=>{const n=parseAmt(e.target.value);e.target.value=n?n.toLocaleString("id-ID"):""};
+function openForm(t,preset){
+  F=t?{...t}:Object.assign({id:null,jenis:"Keluar",kat:"",untuk:"",met:S.lastMetode||"QRIS",ket:"",cat:"",tgl:today(),nom:0},preset||{});
+  $("fTitle").textContent=t?"Ubah transaksi":"Catat transaksi";
+  $("fAmt").value=F.nom?F.nom.toLocaleString("id-ID"):"";
+  $("fKet").value=F.ket;$("fCat").value=F.cat;$("fTgl").value=F.tgl;
+  $("fDel").classList.toggle("hide",!t);
+  drawForm();open("shForm");
+  if(!t&&!preset)setTimeout(()=>$("fAmt").focus(),250);
+}
+$("fSave").onclick=()=>{
+  F.nom=parseAmt($("fAmt").value);F.ket=$("fKet").value.trim();F.cat=$("fCat").value.trim();F.tgl=$("fTgl").value||today();F.untuk=$("fUntuk").value;
+  if(!F.nom)return toast("Isi nominal dulu");
+  if(!F.kat)return toast("Pilih kategori");
+  if(WAJIB_UNTUK.includes(F.kat)&&!F.untuk)return toast(S.untuk.length?"Pilih 'Untuk' (wajib untuk kategori ini)":"Isi daftar 'Untuk' di Pengaturan dulu");
+  const rec={id:F.id||uid(),ts:F.ts||Date.now(),jenis:F.jenis,kat:F.kat,untuk:F.untuk,met:F.met,ket:F.ket,cat:F.cat,tgl:F.tgl,nom:F.nom,exp:false};
+  const i=S.tx.findIndex(x=>x.id===rec.id);
+  if(i>=0){if(S.tx[i].exp)toast("Diubah — ingat ubah juga di Excel");S.tx[i]=rec}else S.tx.push(rec);
+  S.lastMetode=F.met;save();closeAll();render();if(i<0)toast("Tersimpan ✓");
+};
+$("fDel").onclick=()=>{
+  const t=S.tx.find(x=>x.id===F.id);
+  if(!confirm("Hapus transaksi ini?"+(t&&t.exp?"\n(Sudah ada di Excel — hapus juga di sana.)":"")))return;
+  S.tx=S.tx.filter(x=>x.id!==F.id);save();closeAll();render();toast("Dihapus");
+};
+$("fab").onclick=()=>openForm();
+$("list").onclick=e=>{const it=e.target.closest(".it");if(it)openForm(S.tx.find(x=>x.id===it.dataset.id))};
+$("qMakan").onclick=()=>openForm(null,{jenis:"Masuk",kat:"Pemasukan lain",met:"Cash",nom:S.jatahMakan||50000,ket:"Sisa jatah makan"});
+$("bOlder").onclick=()=>{showMonths++;render()};
+
+/* ---------- ekspor ---------- */
+const clean=s=>String(s||"").replace(/[\t\r\n]+/g," ").trim();
+function rows(list){
+  return [...list].sort((a,b)=>a.tgl.localeCompare(b.tgl)||a.ts-b.ts)
+    .map(t=>[tglXL(t.tgl),t.kat,clean(t.ket),t.untuk||"",t.met,t.jenis==="Masuk"?t.nom:"",t.jenis==="Keluar"?t.nom:"",clean(t.cat)]);
+}
+async function copyText(txt){
+  try{await navigator.clipboard.writeText(txt);return true}catch(e){
+    const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+    let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();return ok}
+}
+function drawExp(){
+  const p=S.tx.filter(t=>!t.exp);
+  $("expInfo").textContent=p.length?`${p.length} transaksi belum dipindah ke Excel.`:"Semua transaksi sudah ada di Excel ✓";
+}
+$("qExp").onclick=()=>{drawExp();open("shExp")};
+$("eCopy").onclick=async()=>{
+  const p=S.tx.filter(t=>!t.exp);if(!p.length)return toast("Tidak ada transaksi baru");
+  const ok=await copyText(rows(p).map(r=>r.join("\t")).join("\n"));
+  toast(ok?`${p.length} baris tersalin — tempel di sel B Excel`:"Gagal menyalin, pakai Unduh CSV");
+};
+$("eAll").onclick=async()=>{
+  if(!S.tx.length)return toast("Belum ada transaksi");
+  const ok=await copyText(rows(S.tx).map(r=>r.join("\t")).join("\n"));toast(ok?"Semua transaksi tersalin":"Gagal menyalin");
+};
+$("eDone").onclick=()=>{
+  const n=S.tx.filter(t=>!t.exp).length;if(!n)return toast("Sudah semua");
+  if(!confirm(`Tandai ${n} transaksi sudah ditempel di Excel?`))return;
+  S.tx.forEach(t=>t.exp=true);save();drawExp();render();toast("Ditandai ✓");
+};
+function download(name,txt,type){
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+$("eCsv").onclick=()=>{
+  const p=S.tx.filter(t=>!t.exp);if(!p.length)return toast("Tidak ada transaksi baru");
+  const q=v=>/[",;\n]/.test(String(v))?`"${String(v).replace(/"/g,'""')}"`:v;
+  const head=["Tanggal","Kategori","Keterangan","Untuk","Metode","Masuk","Keluar","Catatan"];
+  download(`transaksi_${today()}.csv`,"﻿"+[head,...rows(p)].map(r=>r.map(q).join(";")).join("\n"),"text/csv");
+};
+
+/* ---------- pengaturan & cadangan ---------- */
+function drawSet(){
+  $("sAmt").value=S.saldoAwal.toLocaleString("id-ID");$("sDate").value=S.tglAwal;
+  $("sLimit").value=S.limitHidup.toLocaleString("id-ID");$("sMakan").value=S.jatahMakan.toLocaleString("id-ID");
+  $("sUntuk").value=S.untuk.join("\n");
+  $("lastBackup").textContent=S.lastBackup?`Cadangan terakhir: ${tglID(S.lastBackup)}`:"Belum pernah membuat cadangan. Disarankan seminggu sekali.";
+}
+["sAmt","sLimit","sMakan","suAmt"].forEach(id=>$(id).oninput=e=>{const n=parseAmt(e.target.value);e.target.value=n?n.toLocaleString("id-ID"):""});
+$("bSet").onclick=()=>{drawSet();open("shSet")};
+$("sSave").onclick=()=>{
+  S.saldoAwal=parseAmt($("sAmt").value);S.tglAwal=$("sDate").value||S.tglAwal;
+  S.limitHidup=parseAmt($("sLimit").value)||1000000;S.jatahMakan=parseAmt($("sMakan").value)||50000;
+  S.untuk=$("sUntuk").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  save();closeAll();render();toast("Pengaturan disimpan");
+};
+$("suGo").onclick=()=>{S.saldoAwal=parseAmt($("suAmt").value);S.tglAwal=$("suDate").value||today();S.setup=true;save();render()};
+$("bBackup").onclick=()=>{S.lastBackup=today();save();download(`cadangan_catatan_pribadi_${today()}.json`,JSON.stringify(S,null,1),"application/json");drawSet()};
+$("bRestore").onclick=()=>$("fileRestore").click();
+$("fileRestore").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{const d=JSON.parse(await f.text());if(!Array.isArray(d.tx))throw 0;
+    if(!confirm(`Ganti data di HP ini dengan cadangan (${d.tx.length} transaksi)?`))return;
+    S=Object.assign(load(),d);save();closeAll();render();toast("Data dipulihkan ✓");
+  }catch(_){toast("File cadangan tidak valid")}
+  e.target.value="";
+};
+
+render();
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
